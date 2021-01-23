@@ -1,5 +1,5 @@
 #!/bin/sh
 DEV=$(ls -1 /sys/class/leds/ | sed 's/:blue//' | head -n1)
 FILE="$1"
-go build && \
+env CGO_ENABLED=1 go build && \
 ffmpeg -i "$FILE" -f s16le -c:a pcm_s16le -ac 2 -ar 44100 - | sudo ./ds4visualize "$DEV"
