@@ -1,11 +1,11 @@
 package main
 
 import (
-    "runtime"
     "context"
     "io"
     "os"
     "os/signal"
+    "runtime"
     "strconv"
     "sync"
     "syscall"
@@ -28,6 +28,12 @@ const (
     colorGreen
     colorBlue
 )
+
+var seed uint64
+
+func init() {
+    seed = uint64(time.Now().UnixNano())
+}
 
 func main() {
     if len(os.Args) < 2 {
@@ -89,9 +95,10 @@ func (d *dualShock4) visualize(ctx context.Context) {
             player.Write(buf)
             runtime.UnlockOSThread()
             for i := 0; i < len(buf)-1; i++ {
+                r := random()
                 s1, s2 := buf[i], buf[i+1]
-                sample := lerp(int(s1), int(s2), 255)
-                interpolated := colorLerp(rgb(sample, sample, sample), color, 200)
+                sample := lerp(int(s1), int(s2), (r<<1)%128)
+                interpolated := colorLerp(rgb(sample, sample, sample), color, r)
                 d.writeColor(interpolated)
             }
             pool.Put(buf)
@@ -263,4 +270,9 @@ func generateRainbow(ctx context.Context) chan int {
         }
     }()
     return ch
+}
+
+func random() int {
+    seed = 6364136223846793005*seed + 1
+    return int(seed>>33) & 0xff
 }
