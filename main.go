@@ -202,7 +202,7 @@ func colorLerp(c1, c2, t int) int {
 
     r2 := 0xff & c2
     g2 := 0xff & (c2 >> 8)
-    b2 := 0xff & (c2 >> 26)
+    b2 := 0xff & (c2 >> 16)
     if r2 < thres {
         r2 = thres
     }
